@@ -6,7 +6,9 @@ import { Modal } from '../ui/modal';
 const JobsSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
+  const [updatedStatus, setUpdatedStatus] = useState("");
   const [jobs, setJobs] = useState([
     {
       id: 1,
@@ -134,6 +136,21 @@ const JobsSection = () => {
       notes: ""
     });
     setIsModalOpen(false);
+  };
+
+  const openStatusModal = (job) => {
+    setSelectedJob(job);
+    setUpdatedStatus(job.status);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusUpdate = () => {
+    const updatedJobs = jobs.map(job =>
+      job.id === selectedJob.id ? { ...job, status: updatedStatus } : job
+    );
+    setJobs(updatedJobs);
+    setSelectedJob({ ...selectedJob, status: updatedStatus });
+    setIsStatusModalOpen(false);
   };
 
   return (
@@ -336,7 +353,48 @@ const JobsSection = () => {
               >
                 Close
               </Button>
-              <Button>Edit Job</Button>
+              <Button onClick={() => openStatusModal(selectedJob)}>Update Status</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Status Update Modal */}
+      <Modal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        title="Update Job Status"
+      >
+        {selectedJob && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Update the status for <span className="font-medium text-gray-900">{selectedJob.title}</span>
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="status" className="block text-sm font-medium">
+                Status
+              </label>
+              <select
+                id="status"
+                value={updatedStatus}
+                onChange={(e) => setUpdatedStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsStatusModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleStatusUpdate}>Update Status</Button>
             </div>
           </div>
         )}

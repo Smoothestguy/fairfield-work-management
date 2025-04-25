@@ -6,7 +6,9 @@ import { Modal } from '../ui/modal';
 const ExpensesSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
+  const [updatedStatus, setUpdatedStatus] = useState("");
   const [expenses, setExpenses] = useState([
     {
       id: 1,
@@ -206,6 +208,40 @@ const ExpensesSection = () => {
       receiptUrl: ""
     });
     setIsModalOpen(false);
+  };
+
+  const openStatusModal = (expense) => {
+    setSelectedExpense(expense);
+    setUpdatedStatus(expense.status);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusUpdate = () => {
+    // Get current user for approver field if status is changing to Approved
+    let updatedExpense = { ...selectedExpense, status: updatedStatus };
+
+    // If status is changing to Approved, update approver
+    if (updatedStatus === "Approved" && selectedExpense.status !== "Approved") {
+      updatedExpense.approver = "Current User"; // In a real app, this would be the logged-in user
+    }
+
+    // If status is changing to Paid, update payment date
+    if (updatedStatus === "Paid" && selectedExpense.status !== "Paid") {
+      const today = new Date();
+      updatedExpense.paymentDate = today.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    const updatedExpenses = expenses.map(expense =>
+      expense.id === selectedExpense.id ? updatedExpense : expense
+    );
+
+    setExpenses(updatedExpenses);
+    setSelectedExpense(updatedExpense);
+    setIsStatusModalOpen(false);
   };
 
   return (
@@ -454,7 +490,49 @@ const ExpensesSection = () => {
               >
                 Close
               </Button>
-              <Button>Edit Expense</Button>
+              <Button onClick={() => openStatusModal(selectedExpense)}>Update Status</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Status Update Modal */}
+      <Modal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        title="Update Expense Status"
+      >
+        {selectedExpense && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Update the status for <span className="font-medium text-gray-900">{selectedExpense.title}</span>
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="status" className="block text-sm font-medium">
+                Status
+              </label>
+              <select
+                id="status"
+                value={updatedStatus}
+                onChange={(e) => setUpdatedStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Pending Approval">Pending Approval</option>
+                <option value="Approved">Approved</option>
+                <option value="Paid">Paid</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsStatusModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleStatusUpdate}>Update Status</Button>
             </div>
           </div>
         )}

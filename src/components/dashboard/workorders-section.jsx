@@ -6,7 +6,10 @@ import { Modal } from '../ui/modal';
 const WorkOrdersSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedWorkOrder, setSelectedWorkOrder] = useState(null);
+  const [updatedStatus, setUpdatedStatus] = useState("");
+  const [updatedProgress, setUpdatedProgress] = useState(0);
   const [workOrders, setWorkOrders] = useState([
     {
       id: 1,
@@ -177,6 +180,55 @@ const WorkOrdersSection = () => {
       progress: 0
     });
     setIsModalOpen(false);
+  };
+
+  const openStatusModal = (workOrder) => {
+    setSelectedWorkOrder(workOrder);
+    setUpdatedStatus(workOrder.status);
+    setUpdatedProgress(workOrder.progress);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusUpdate = () => {
+    // Calculate completed hours based on progress
+    let completedHours = Math.round(selectedWorkOrder.estimatedHours * (updatedProgress / 100));
+
+    // Ensure status and progress are in sync
+    let finalStatus = updatedStatus;
+    let finalProgress = updatedProgress;
+
+    // If progress is 100%, status should be Completed
+    if (finalProgress === 100 && finalStatus !== "Completed") {
+      finalStatus = "Completed";
+    }
+
+    // If status is Completed, progress should be 100%
+    if (finalStatus === "Completed" && finalProgress !== 100) {
+      finalProgress = 100;
+      completedHours = selectedWorkOrder.estimatedHours;
+    }
+
+    // If status is Pending, progress should be 0%
+    if (finalStatus === "Pending" && finalProgress !== 0) {
+      finalProgress = 0;
+      completedHours = 0;
+    }
+
+    // Update the work order
+    const updatedWorkOrder = {
+      ...selectedWorkOrder,
+      status: finalStatus,
+      progress: finalProgress,
+      completedHours: completedHours
+    };
+
+    const updatedWorkOrders = workOrders.map(order =>
+      order.id === selectedWorkOrder.id ? updatedWorkOrder : order
+    );
+
+    setWorkOrders(updatedWorkOrders);
+    setSelectedWorkOrder(updatedWorkOrder);
+    setIsStatusModalOpen(false);
   };
 
   return (
@@ -409,7 +461,75 @@ const WorkOrdersSection = () => {
               >
                 Close
               </Button>
-              <Button>Update Status</Button>
+              <Button onClick={() => openStatusModal(selectedWorkOrder)}>Update Status</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Status Update Modal */}
+      <Modal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        title="Update Work Order Status"
+      >
+        {selectedWorkOrder && (
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Update the status for <span className="font-medium text-gray-900">{selectedWorkOrder.title}</span>
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="status" className="block text-sm font-medium">
+                Status
+              </label>
+              <select
+                id="status"
+                value={updatedStatus}
+                onChange={(e) => setUpdatedStatus(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="progress" className="block text-sm font-medium">
+                Progress ({updatedProgress}%)
+              </label>
+              <input
+                id="progress"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={updatedProgress}
+                onChange={(e) => setUpdatedProgress(parseInt(e.target.value))}
+                className="w-full"
+              />
+              <div className="w-full bg-gray-200 h-2 rounded-full">
+                <div
+                  className={`h-2 rounded-full ${
+                    updatedProgress === 100 ? "bg-green-500" :
+                    updatedProgress > 50 ? "bg-blue-500" :
+                    updatedProgress > 0 ? "bg-yellow-500" :
+                    "bg-gray-300"
+                  }`}
+                  style={{ width: `${updatedProgress}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsStatusModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleStatusUpdate}>Update Status</Button>
             </div>
           </div>
         )}
