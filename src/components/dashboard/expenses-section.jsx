@@ -5,6 +5,8 @@ import { Modal } from '../ui/modal';
 
 const ExpensesSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState(null);
   const [expenses, setExpenses] = useState([
     {
       id: 1,
@@ -14,7 +16,13 @@ const ExpensesSection = () => {
       status: "Pending Approval",
       submittedBy: "John Smith",
       date: "April 20, 2025",
-      receiptUrl: ""
+      category: "Travel",
+      description: "Expenses for site visit to Lake Charles for hurricane damage assessment. Includes airfare, rental car, and meals for 3 days.",
+      receiptUrl: "https://example.com/receipts/travel-1.pdf",
+      approver: "Pending",
+      paymentMethod: "Corporate Card",
+      paymentDate: "Pending",
+      notes: "Awaiting manager approval. All receipts have been submitted."
     },
     {
       id: 2,
@@ -24,7 +32,13 @@ const ExpensesSection = () => {
       status: "Approved",
       submittedBy: "Sarah Johnson",
       date: "April 15, 2025",
-      receiptUrl: ""
+      category: "Equipment Rental",
+      description: "Rental of industrial dehumidifiers, water pumps, and fans for flood restoration project in New Orleans.",
+      receiptUrl: "https://example.com/receipts/equipment-2.pdf",
+      approver: "Robert Chen",
+      paymentMethod: "Company Check",
+      paymentDate: "April 22, 2025",
+      notes: "Equipment rented for 2 weeks. Approved by project manager."
     },
     {
       id: 3,
@@ -34,7 +48,13 @@ const ExpensesSection = () => {
       status: "Paid",
       submittedBy: "Mike Williams",
       date: "April 5, 2025",
-      receiptUrl: ""
+      category: "Supplies",
+      description: "Purchase of cleaning supplies, protective equipment, and specialized chemicals for fire damage cleanup at Baton Rouge Business Center.",
+      receiptUrl: "https://example.com/receipts/supplies-3.pdf",
+      approver: "Lisa Rodriguez",
+      paymentMethod: "Corporate Card",
+      paymentDate: "April 12, 2025",
+      notes: "All supplies used on site. Payment processed and reimbursed."
     },
     {
       id: 4,
@@ -44,7 +64,13 @@ const ExpensesSection = () => {
       status: "Approved",
       submittedBy: "Sarah Johnson",
       date: "April 18, 2025",
-      receiptUrl: ""
+      category: "Contractor Payment",
+      description: "Payment to ABC Hauling for debris removal services in Lafayette. Includes heavy equipment operation and disposal fees.",
+      receiptUrl: "https://example.com/receipts/contractor-4.pdf",
+      approver: "Robert Chen",
+      paymentMethod: "Bank Transfer",
+      paymentDate: "Pending",
+      notes: "Invoice verified and approved. Payment scheduled for April 25."
     },
     {
       id: 5,
@@ -54,7 +80,13 @@ const ExpensesSection = () => {
       status: "Pending Approval",
       submittedBy: "John Smith",
       date: "April 22, 2025",
-      receiptUrl: ""
+      category: "Fuel",
+      description: "Fuel expenses for company vehicles used during structural assessment project in Shreveport. Multiple site visits required.",
+      receiptUrl: "https://example.com/receipts/fuel-5.pdf",
+      approver: "Pending",
+      paymentMethod: "Corporate Card",
+      paymentDate: "Pending",
+      notes: "Receipts submitted for all fuel purchases. Awaiting approval from finance department."
     },
     {
       id: 6,
@@ -64,7 +96,13 @@ const ExpensesSection = () => {
       status: "Paid",
       submittedBy: "Mike Williams",
       date: "April 10, 2025",
-      receiptUrl: ""
+      category: "Accommodation",
+      description: "Hotel accommodations for restoration team in Alexandria. 3 rooms for 5 nights during water damage restoration project.",
+      receiptUrl: "https://example.com/receipts/hotel-6.pdf",
+      approver: "Emily Davis",
+      paymentMethod: "Corporate Card",
+      paymentDate: "April 15, 2025",
+      notes: "Standard per diem rates applied. All expenses within budget guidelines."
     }
   ]);
 
@@ -186,12 +224,11 @@ const ExpensesSection = () => {
         {expenses.map(expense => (
           <ExpenseCard
             key={expense.id}
-            title={expense.title}
-            amount={expense.amount}
-            job={expense.job}
-            status={expense.status}
-            submittedBy={expense.submittedBy}
-            date={expense.date}
+            expense={expense}
+            onViewDetails={() => {
+              setSelectedExpense(expense);
+              setIsDetailsModalOpen(true);
+            }}
           />
         ))}
       </div>
@@ -333,11 +370,102 @@ const ExpensesSection = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Expense Details Modal */}
+      <Modal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        title={selectedExpense?.title || "Expense Details"}
+      >
+        {selectedExpense && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">{selectedExpense.title}</h3>
+              <span className="text-xl font-bold">{selectedExpense.amount}</span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-500">Status</span>
+              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                selectedExpense.status === "Paid" ? "bg-green-100 text-green-800" :
+                selectedExpense.status === "Approved" ? "bg-blue-100 text-blue-800" :
+                selectedExpense.status === "Rejected" ? "bg-red-100 text-red-800" :
+                "bg-yellow-100 text-yellow-800"
+              }`}>
+                {selectedExpense.status}
+              </span>
+            </div>
+
+            <div className="border-t pt-4">
+              <dl className="divide-y divide-gray-200">
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Category</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.category}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Description</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.description}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Related Job</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.job}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Submitted By</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.submittedBy}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Date Submitted</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.date}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Approver</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.approver}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Payment Method</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.paymentMethod}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Payment Date</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.paymentDate}</dd>
+                </div>
+                {selectedExpense.receiptUrl && (
+                  <div className="py-3 grid grid-cols-3 gap-4">
+                    <dt className="text-sm font-medium text-gray-500">Receipt</dt>
+                    <dd className="text-sm text-blue-600 col-span-2">
+                      <a href={selectedExpense.receiptUrl} target="_blank" rel="noopener noreferrer">
+                        View Receipt
+                      </a>
+                    </dd>
+                  </div>
+                )}
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Notes</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedExpense.notes}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setIsDetailsModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button>Edit Expense</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
 
-const ExpenseCard = ({ title, amount, job, status, submittedBy, date }) => {
+const ExpenseCard = ({ expense, onViewDetails }) => {
+  const { title, amount, job, status, submittedBy, date } = expense;
+
   const getStatusColor = (status) => {
     switch(status.toLowerCase()) {
       case 'paid': return 'bg-green-500';
@@ -379,7 +507,7 @@ const ExpenseCard = ({ title, amount, job, status, submittedBy, date }) => {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t flex justify-end">
-          <Button variant="outline" size="sm">View Details</Button>
+          <Button variant="outline" size="sm" onClick={onViewDetails}>View Details</Button>
         </div>
       </CardContent>
     </Card>
