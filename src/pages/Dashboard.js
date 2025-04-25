@@ -58,9 +58,9 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
             <img
-              src="/images/fairfield-logo.svg"
+              src="/images/FF-WHITE-LOGO.png"
               alt="Fairfield Group Logo"
-              className="h-8 w-auto"
+              className="h-25 w-auto"
             />
           </div>
           <button
