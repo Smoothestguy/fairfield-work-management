@@ -60,6 +60,16 @@ body {
   border-bottom: 1px solid #e5e7eb;
 }
 
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .header {
+    padding-top: 2.5rem; /* Add space for the mobile menu button */
+  }
+}
+
 .card-grid {
   display: grid;
   gap: 1rem;
