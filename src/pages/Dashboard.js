@@ -5,6 +5,7 @@ import ExpensesSection from '../components/dashboard/expenses-section';
 import WorkOrdersSection from '../components/dashboard/workorders-section';
 import StaffSection from '../components/dashboard/staff-section';
 import SettingsSection from '../components/dashboard/settings-section';
+import whiteLogo from '../images/FF-WHITE-LOGO.png';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -58,7 +59,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
             <img
-              src={`${process.env.PUBLIC_URL}/images/FF-WHITE-LOGO.png`}
+              src={whiteLogo}
               alt="Fairfield Group Logo"
               className="h-20 w-auto"
             />
@@ -132,7 +133,7 @@ const Dashboard = () => {
       <div className="sidebar">
         <div className="flex items-center justify-center mb-8">
           <img
-            src={`${process.env.PUBLIC_URL}/images/FF-WHITE-LOGO.png`}
+            src={whiteLogo}
             alt="Fairfield Group Logo"
             className="h-25 w-auto"
           />

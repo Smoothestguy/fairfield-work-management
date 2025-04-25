@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
+import blackLogo from '../images/FF-BLACK-LOGO.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="flex flex-col items-center">
           <img
-            src={`${process.env.PUBLIC_URL}/images/FF-BLACK-LOGO.png`}
+            src={blackLogo}
             alt="Fairfield Group Logo"
             className="h-60 w-auto mb-4"
           />
