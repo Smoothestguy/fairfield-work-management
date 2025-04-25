@@ -58,9 +58,9 @@ const Dashboard = () => {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
             <img
-              src="/images/FF-WHITE-LOGO.png"
+              src={`${process.env.PUBLIC_URL}/images/FF-WHITE-LOGO.png`}
               alt="Fairfield Group Logo"
-              className="h-25 w-auto"
+              className="h-20 w-auto"
             />
           </div>
           <button
@@ -132,7 +132,7 @@ const Dashboard = () => {
       <div className="sidebar">
         <div className="flex items-center justify-center mb-8">
           <img
-            src="/images/FF-WHITE-LOGO.png"
+            src={`${process.env.PUBLIC_URL}/images/FF-WHITE-LOGO.png`}
             alt="Fairfield Group Logo"
             className="h-25 w-auto"
           />

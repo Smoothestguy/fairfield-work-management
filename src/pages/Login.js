@@ -35,9 +35,9 @@ const Login = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="flex flex-col items-center">
           <img
-            src="/images/FF-BLACK-LOGO.png"
+            src={`${process.env.PUBLIC_URL}/images/FF-BLACK-LOGO.png`}
             alt="Fairfield Group Logo"
-            className="h-70 w-auto mb-4"
+            className="h-60 w-auto mb-4"
           />
           <h3 className="mt-2 text-center text-xl text-gray-600">
             Work Management System
