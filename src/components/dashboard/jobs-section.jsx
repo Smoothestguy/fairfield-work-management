@@ -5,6 +5,8 @@ import { Modal } from '../ui/modal';
 
 const JobsSection = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
   const [jobs, setJobs] = useState([
     {
       id: 1,
@@ -12,7 +14,13 @@ const JobsSection = () => {
       status: "In Progress",
       location: "Lake Charles, LA",
       dueDate: "May 15, 2025",
-      priority: "High"
+      priority: "High",
+      description: "Comprehensive assessment of structural damage caused by Hurricane Laura. Includes roof inspection, water damage evaluation, and structural integrity analysis.",
+      client: "Louisiana State Emergency Management",
+      assignedTo: ["John Smith", "Sarah Johnson"],
+      budget: "$25,000",
+      startDate: "April 20, 2025",
+      notes: "Access to certain areas may be restricted due to ongoing cleanup efforts."
     },
     {
       id: 2,
@@ -20,7 +28,13 @@ const JobsSection = () => {
       status: "Pending",
       location: "New Orleans, LA",
       dueDate: "June 1, 2025",
-      priority: "Medium"
+      priority: "Medium",
+      description: "Restoration of residential properties affected by recent flooding. Services include water extraction, drying, sanitization, and structural repairs.",
+      client: "New Orleans Housing Authority",
+      assignedTo: ["Mike Williams", "Emily Davis"],
+      budget: "$42,000",
+      startDate: "May 10, 2025",
+      notes: "Multiple properties involved. Coordination with local authorities required."
     },
     {
       id: 3,
@@ -28,7 +42,13 @@ const JobsSection = () => {
       status: "Completed",
       location: "Baton Rouge, LA",
       dueDate: "April 10, 2025",
-      priority: "Low"
+      priority: "Low",
+      description: "Cleanup and restoration of commercial property after fire damage. Includes smoke and soot removal, odor elimination, and structural repairs.",
+      client: "Baton Rouge Business Center",
+      assignedTo: ["Robert Chen", "Lisa Rodriguez"],
+      budget: "$18,500",
+      startDate: "March 25, 2025",
+      notes: "All work completed ahead of schedule. Final inspection passed on April 8."
     },
     {
       id: 4,
@@ -36,7 +56,13 @@ const JobsSection = () => {
       status: "In Progress",
       location: "Lafayette, LA",
       dueDate: "May 20, 2025",
-      priority: "Medium"
+      priority: "Medium",
+      description: "Removal and disposal of debris from recent thunderstorms. Includes clearing of fallen trees, branches, and other storm-related debris from public and private properties.",
+      client: "Lafayette Parish Government",
+      assignedTo: ["John Smith", "Mike Williams"],
+      budget: "$32,000",
+      startDate: "May 5, 2025",
+      notes: "Heavy equipment required for several locations. Traffic management plan in place."
     },
     {
       id: 5,
@@ -44,7 +70,13 @@ const JobsSection = () => {
       status: "Pending",
       location: "Shreveport, LA",
       dueDate: "May 25, 2025",
-      priority: "High"
+      priority: "High",
+      description: "Comprehensive structural assessment of municipal buildings following minor earthquake. Evaluation of foundation integrity, load-bearing walls, and overall structural safety.",
+      client: "City of Shreveport",
+      assignedTo: ["Sarah Johnson", "Robert Chen"],
+      budget: "$15,000",
+      startDate: "May 15, 2025",
+      notes: "Priority assessment for schools and emergency services buildings."
     },
     {
       id: 6,
@@ -52,7 +84,13 @@ const JobsSection = () => {
       status: "In Progress",
       location: "Alexandria, LA",
       dueDate: "May 18, 2025",
-      priority: "Medium"
+      priority: "Medium",
+      description: "Restoration of residential properties affected by water damage from broken water main. Services include water extraction, drying, dehumidification, and repairs.",
+      client: "Alexandria Housing Department",
+      assignedTo: ["Emily Davis", "Lisa Rodriguez"],
+      budget: "$28,500",
+      startDate: "May 2, 2025",
+      notes: "Coordination with city water department required. Multiple residential units affected."
     }
   ]);
 
@@ -61,7 +99,13 @@ const JobsSection = () => {
     status: "Pending",
     location: "",
     dueDate: "",
-    priority: "Medium"
+    priority: "Medium",
+    description: "",
+    client: "",
+    assignedTo: [],
+    budget: "",
+    startDate: "",
+    notes: ""
   });
 
   const handleInputChange = (e) => {
@@ -81,7 +125,13 @@ const JobsSection = () => {
       status: "Pending",
       location: "",
       dueDate: "",
-      priority: "Medium"
+      priority: "Medium",
+      description: "",
+      client: "",
+      assignedTo: [],
+      budget: "",
+      startDate: "",
+      notes: ""
     });
     setIsModalOpen(false);
   };
@@ -102,11 +152,11 @@ const JobsSection = () => {
         {jobs.map(job => (
           <JobCard
             key={job.id}
-            title={job.title}
-            status={job.status}
-            location={job.location}
-            dueDate={job.dueDate}
-            priority={job.priority}
+            job={job}
+            onViewDetails={() => {
+              setSelectedJob(job);
+              setIsDetailsModalOpen(true);
+            }}
           />
         ))}
       </div>
@@ -210,11 +260,94 @@ const JobsSection = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Job Details Modal */}
+      <Modal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        title={selectedJob?.title || "Job Details"}
+      >
+        {selectedJob && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">{selectedJob.title}</h3>
+              <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                selectedJob.status === "Completed" ? "bg-green-100 text-green-800" :
+                selectedJob.status === "In Progress" ? "bg-blue-100 text-blue-800" :
+                "bg-yellow-100 text-yellow-800"
+              }`}>
+                {selectedJob.status}
+              </span>
+            </div>
+
+            <div className="border-t pt-4">
+              <dl className="divide-y divide-gray-200">
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Description</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.description}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Client</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.client}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Location</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.location}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Start Date</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.startDate}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Due Date</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.dueDate}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Priority</dt>
+                  <dd className={`text-sm col-span-2 ${
+                    selectedJob.priority === "High" ? "text-red-500" :
+                    selectedJob.priority === "Medium" ? "text-yellow-500" :
+                    "text-green-500"
+                  }`}>
+                    {selectedJob.priority}
+                  </dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Budget</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.budget}</dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Assigned To</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">
+                    {selectedJob.assignedTo.join(", ")}
+                  </dd>
+                </div>
+                <div className="py-3 grid grid-cols-3 gap-4">
+                  <dt className="text-sm font-medium text-gray-500">Notes</dt>
+                  <dd className="text-sm text-gray-900 col-span-2">{selectedJob.notes}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={() => setIsDetailsModalOpen(false)}
+              >
+                Close
+              </Button>
+              <Button>Edit Job</Button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
 
-const JobCard = ({ title, status, location, dueDate, priority }) => {
+const JobCard = ({ job, onViewDetails }) => {
+  const { title, status, location, dueDate, priority } = job;
+
   const getStatusColor = (status) => {
     switch(status.toLowerCase()) {
       case 'completed': return 'bg-green-500';
@@ -261,7 +394,7 @@ const JobCard = ({ title, status, location, dueDate, priority }) => {
           </div>
         </div>
         <div className="mt-4 pt-4 border-t flex justify-end">
-          <Button variant="outline" size="sm">View Details</Button>
+          <Button variant="outline" size="sm" onClick={onViewDetails}>View Details</Button>
         </div>
       </CardContent>
     </Card>
