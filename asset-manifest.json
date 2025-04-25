@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/fairfield-work-management/static/css/main.06f2d3dc.css",
-    "main.js": "/fairfield-work-management/static/js/main.bf806485.js",
+    "main.css": "/fairfield-work-management/static/css/main.7ca2d6ae.css",
+    "main.js": "/fairfield-work-management/static/js/main.31e42e6a.js",
     "static/js/488.f4225861.chunk.js": "/fairfield-work-management/static/js/488.f4225861.chunk.js",
     "index.html": "/fairfield-work-management/index.html",
-    "main.06f2d3dc.css.map": "/fairfield-work-management/static/css/main.06f2d3dc.css.map",
-    "main.bf806485.js.map": "/fairfield-work-management/static/js/main.bf806485.js.map",
+    "main.7ca2d6ae.css.map": "/fairfield-work-management/static/css/main.7ca2d6ae.css.map",
+    "main.31e42e6a.js.map": "/fairfield-work-management/static/js/main.31e42e6a.js.map",
     "488.f4225861.chunk.js.map": "/fairfield-work-management/static/js/488.f4225861.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.06f2d3dc.css",
-    "static/js/main.bf806485.js"
+    "static/css/main.7ca2d6ae.css",
+    "static/js/main.31e42e6a.js"
   ]
 }
