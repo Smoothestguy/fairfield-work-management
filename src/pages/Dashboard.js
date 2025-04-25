@@ -49,7 +49,13 @@ const Dashboard = () => {
       {/* Mobile sidebar */}
       <div className={`sidebar-mobile ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-xl font-bold text-white">Fairfield Response</h1>
+          <div className="flex items-center">
+            <img
+              src="/images/fairfield-logo.svg"
+              alt="Fairfield Group Logo"
+              className="h-8 w-auto"
+            />
+          </div>
           <button
             onClick={toggleSidebar}
             className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
@@ -118,7 +124,11 @@ const Dashboard = () => {
       {/* Desktop sidebar */}
       <div className="sidebar">
         <div className="flex items-center justify-center mb-8">
-          <h1 className="text-xl font-bold text-white">Fairfield Response</h1>
+          <img
+            src="/images/fairfield-logo.svg"
+            alt="Fairfield Group Logo"
+            className="h-10 w-auto"
+          />
         </div>
         <nav className="space-y-1">
           <SidebarItem
@@ -184,7 +194,7 @@ const Dashboard = () => {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
-        
+
         {renderSection()}
       </div>
     </div>
