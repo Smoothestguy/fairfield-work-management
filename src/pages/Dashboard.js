@@ -47,12 +47,18 @@ const Dashboard = () => {
         </button>
       </div>
 
+      {/* Sidebar overlay */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={toggleSidebar}
+      ></div>
+
       {/* Mobile sidebar */}
-      <div className={`sidebar-mobile ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`sidebar-mobile ${sidebarOpen ? 'open' : ''}`}>
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center">
             <img
-              src="/images/FF-WHITE-LOGO.png"
+              src="/images/fairfield-logo.svg"
               alt="Fairfield Group Logo"
               className="h-8 w-auto"
             />
