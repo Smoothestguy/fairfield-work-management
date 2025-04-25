@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../App';
+import HomeSection from '../components/dashboard/home-section';
 import JobsSection from '../components/dashboard/jobs-section';
 import ExpensesSection from '../components/dashboard/expenses-section';
 import WorkOrdersSection from '../components/dashboard/workorders-section';
@@ -9,15 +10,27 @@ import whiteLogo from '../images/FF-WHITE-LOGO.png';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-  const [activeSection, setActiveSection] = useState('jobs');
+  const [activeSection, setActiveSection] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleSectionNavigation = (section, openModal) => {
+    setActiveSection(section);
+
+    // If openModal is true, we could implement logic to open the appropriate modal
+    // in the future. For now, we're just logging it.
+    if (openModal) {
+      console.log(`Open modal for ${section} section`);
+    }
+  };
+
   const renderSection = () => {
     switch (activeSection) {
+      case 'home':
+        return <HomeSection onNavigate={handleSectionNavigation} />;
       case 'jobs':
         return <JobsSection />;
       case 'expenses':
@@ -29,7 +42,7 @@ const Dashboard = () => {
       case 'settings':
         return <SettingsSection />;
       default:
-        return <JobsSection />;
+        return <HomeSection onNavigate={handleSectionNavigation} />;
     }
   };
 
@@ -74,6 +87,14 @@ const Dashboard = () => {
           </button>
         </div>
         <nav className="space-y-1">
+          <SidebarItem
+            active={activeSection === 'home'}
+            onClick={() => { setActiveSection('home'); setSidebarOpen(false); }}
+            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>}
+            text="Home"
+          />
           <SidebarItem
             active={activeSection === 'jobs'}
             onClick={() => { setActiveSection('jobs'); setSidebarOpen(false); }}
@@ -139,6 +160,14 @@ const Dashboard = () => {
           />
         </div>
         <nav className="space-y-1">
+          <SidebarItem
+            active={activeSection === 'home'}
+            onClick={() => setActiveSection('home')}
+            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>}
+            text="Home"
+          />
           <SidebarItem
             active={activeSection === 'jobs'}
             onClick={() => setActiveSection('jobs')}
