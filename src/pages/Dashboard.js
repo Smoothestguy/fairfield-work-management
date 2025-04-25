@@ -132,9 +132,9 @@ const Dashboard = () => {
       <div className="sidebar">
         <div className="flex items-center justify-center mb-8">
           <img
-            src="/images/fairfield-logo.svg"
+            src="/images/FF-WHITE-LOGO.png"
             alt="Fairfield Group Logo"
-            className="h-10 w-auto"
+            className="h-25 w-auto"
           />
         </div>
         <nav className="space-y-1">
