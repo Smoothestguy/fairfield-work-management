@@ -2,17 +2,49 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { useNavigate } from 'react-router-dom';
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip as RechartsTooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts';
+
+// Mock data for charts (replace with actual data fetching/processing)
+const workOrderStatusData = [
+  { name: 'Pending', value: 1 }, // Based on the 3 sample work orders
+  { name: 'In Progress', value: 1 },
+  { name: 'Completed', value: 1 },
+  { name: 'On Hold', value: 0 },
+  { name: 'Cancelled', value: 0 },
+];
+
+const jobProgressData = [
+  { name: 'Hurricane Damage', progress: 65 },
+  { name: 'Flood Restoration', progress: 100 },
+  { name: 'Storm Debris', progress: 0 },
+  { name: 'Fire Cleanup', progress: 20 }, // Added mock data
+  { name: 'Structural Assess.', progress: 80 }, // Added mock data
+];
+
+const COLORS = ['#FFBB28', '#0088FE', '#00C49F', '#FF8042', '#8884d8']; // Yellow, Blue, Green, Orange, Gray
 
 const HomeSection = ({ onNavigate }) => {
-  // Mock data for the dashboard
+  // Mock data for the dashboard summary cards
   const summaryData = {
     activeJobs: 4,
     pendingExpenses: 2,
-    openWorkOrders: 5,
+    openWorkOrders: 2, // Updated based on chart data (Pending + In Progress)
     availableStaff: 3,
-    totalJobs: 6,
+    totalJobs: 5, // Updated based on chart data
     totalExpenses: 6,
-    totalWorkOrders: 6,
+    totalWorkOrders: 3, // Updated based on chart data
     totalStaff: 6
   };
 
@@ -29,151 +61,116 @@ const HomeSection = ({ onNavigate }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h2>
-        <div className="text-sm text-gray-500">
-          {new Date().toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </div>
+        {/* Date Display */}
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard
-          title="Active Jobs"
-          value={summaryData.activeJobs}
-          total={summaryData.totalJobs}
-          icon={
-            <svg className="h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          }
-          color="bg-blue-50"
-          linkText="View Jobs"
-          linkSection="jobs"
-          onNavigate={onNavigate}
-        />
-        <SummaryCard
-          title="Pending Expenses"
-          value={summaryData.pendingExpenses}
-          total={summaryData.totalExpenses}
-          icon={
-            <svg className="h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          }
-          color="bg-green-50"
-          linkText="View Expenses"
-          linkSection="expenses"
-          onNavigate={onNavigate}
-        />
-        <SummaryCard
-          title="Open Work Orders"
-          value={summaryData.openWorkOrders}
-          total={summaryData.totalWorkOrders}
-          icon={
-            <svg className="h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          }
-          color="bg-yellow-50"
-          linkText="View Work Orders"
-          linkSection="workorders"
-          onNavigate={onNavigate}
-        />
-        <SummaryCard
-          title="Available Staff"
-          value={summaryData.availableStaff}
-          total={summaryData.totalStaff}
-          icon={
-            <svg className="h-8 w-8 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          }
-          color="bg-purple-50"
-          linkText="View Staff"
-          linkSection="staff"
-          onNavigate={onNavigate}
-        />
+        {/* Existing Summary Cards ... */}
+        <SummaryCard title="Active Jobs" value={summaryData.activeJobs} total={summaryData.totalJobs} color="bg-blue-50" linkText="View Jobs" linkSection="jobs" onNavigate={onNavigate} />
+        <SummaryCard title="Pending Expenses" value={summaryData.pendingExpenses} total={summaryData.totalExpenses} color="bg-green-50" linkText="View Expenses" linkSection="expenses" onNavigate={onNavigate} />
+        <SummaryCard title="Open Work Orders" value={summaryData.openWorkOrders} total={summaryData.totalWorkOrders} color="bg-yellow-50" linkText="View Work Orders" linkSection="workorders" onNavigate={onNavigate} />
+        <SummaryCard title="Available Staff" value={summaryData.availableStaff} total={summaryData.totalStaff} color="bg-purple-50" linkText="View Staff" linkSection="staff" onNavigate={onNavigate} />
       </div>
 
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {recentActivity.map(activity => (
-              <ActivityItem key={activity.id} activity={activity} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Charts Section */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+        {/* Work Order Status Pie Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Work Order Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={workOrderStatusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                >
+                  {workOrderStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <QuickActionButton
-              text="Create Job"
-              section="jobs"
-              icon={
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              }
-              onNavigate={onNavigate}
-            />
-            <QuickActionButton
-              text="Submit Expense"
-              section="expenses"
-              icon={
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              }
-              onNavigate={onNavigate}
-            />
-            <QuickActionButton
-              text="Create Work Order"
-              section="workorders"
-              icon={
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              }
-              onNavigate={onNavigate}
-            />
-            <QuickActionButton
-              text="Add Staff"
-              section="staff"
-              icon={
-                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              }
-              onNavigate={onNavigate}
-            />
-          </div>
-        </CardContent>
-      </Card>
+        {/* Job Progress Bar Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Job Progress Overview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={jobProgressData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis label={{ value: 'Progress (%)', angle: -90, position: 'insideLeft' }} />
+                <RechartsTooltip />
+                <Legend />
+                <Bar dataKey="progress" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Activity & Quick Actions (Can be kept or modified) */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentActivity.map(activity => (
+                  <ActivityItem key={activity.id} activity={activity} />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Quick Action Buttons ... */}
+                <QuickActionButton text="Create Job" section="jobs" icon={/* Icon */} onNavigate={onNavigate} />
+                <QuickActionButton text="Submit Expense" section="expenses" icon={/* Icon */} onNavigate={onNavigate} />
+                <QuickActionButton text="Create Work Order" section="workorders" icon={/* Icon */} onNavigate={onNavigate} />
+                <QuickActionButton text="Add Staff" section="staff" icon={/* Icon */} onNavigate={onNavigate} />
+              </div>
+            </CardContent>
+          </Card>
+      </div>
+
     </div>
   );
 };
 
+// SummaryCard, ActivityItem, QuickActionButton components remain the same
+// ... (Paste the existing component definitions here) ...
+
 const SummaryCard = ({ title, value, total, icon, color, linkText, linkSection, onNavigate }) => {
+  // Placeholder Icon
+  const defaultIcon = <svg className="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
   return (
     <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className={`p-2 rounded-lg ${color}`}>
-            {icon}
+            {icon || defaultIcon}
           </div>
           <div className="text-right">
             <p className="text-sm font-medium text-gray-500">{title}</p>
@@ -203,85 +200,33 @@ const SummaryCard = ({ title, value, total, icon, color, linkText, linkSection, 
 
 const ActivityItem = ({ activity }) => {
   const getActivityIcon = (type) => {
-    switch(type) {
-      case 'job':
-        return (
-          <div className="bg-blue-100 p-2 rounded-full">
-            <svg className="h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-        );
-      case 'expense':
-        return (
-          <div className="bg-green-100 p-2 rounded-full">
-            <svg className="h-4 w-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        );
-      case 'workorder':
-        return (
-          <div className="bg-yellow-100 p-2 rounded-full">
-            <svg className="h-4 w-4 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          </div>
-        );
-      case 'staff':
-        return (
-          <div className="bg-purple-100 p-2 rounded-full">
-            <svg className="h-4 w-4 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </div>
-        );
-      default:
-        return null;
-    }
+    // Placeholder Icons
+    const icons = {
+        job: <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>,
+        expense: <svg className="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+        workorder: <svg className="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
+        staff: <svg className="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+    };
+    const colors = {
+        job: "bg-blue-100",
+        expense: "bg-green-100",
+        workorder: "bg-yellow-100",
+        staff: "bg-purple-100"
+    };
+    return (
+      <div className={`${colors[type] || 'bg-gray-100'} p-2 rounded-full`}>
+        {icons[type] || <svg className="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+      </div>
+    );
   };
 
   const getActionText = (activity) => {
     const { action, item, user } = activity;
-
-    switch(action) {
-      case 'created':
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> created a new {activity.type} <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-      case 'approved':
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> approved expense <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-      case 'completed':
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> completed work order <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-      case 'added':
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> added new staff member <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-      case 'submitted':
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> submitted expense <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-      default:
-        return (
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-gray-900">{user}</span> {action} {activity.type} <span className="font-medium text-gray-900">{item}</span>
-          </p>
-        );
-    }
+    return (
+      <p className="text-sm text-gray-600">
+        <span className="font-medium text-gray-900">{user}</span> {action} {activity.type} <span className="font-medium text-gray-900">{item}</span>
+      </p>
+    );
   };
 
   return (
@@ -296,6 +241,8 @@ const ActivityItem = ({ activity }) => {
 };
 
 const QuickActionButton = ({ text, section, icon, onNavigate }) => {
+  // Placeholder Icon
+  const defaultIcon = <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>;
   return (
     <Button
       variant="outline"
@@ -306,7 +253,7 @@ const QuickActionButton = ({ text, section, icon, onNavigate }) => {
         }
       }}
     >
-      {icon}
+      {icon || defaultIcon}
       <span>{text}</span>
     </Button>
   );

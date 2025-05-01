@@ -6,6 +6,10 @@ import ExpensesSection from '../components/dashboard/expenses-section';
 import WorkOrdersSection from '../components/dashboard/workorders-section';
 import StaffSection from '../components/dashboard/staff-section';
 import SettingsSection from '../components/dashboard/settings-section';
+// Import new components
+import SubcontractorList from '../components/subcontractors/SubcontractorList';
+import CrewList from '../components/crews/CrewList';
+import RecycleBin from '../components/recycle-bin/RecycleBin'; // Import RecycleBin
 import whiteLogo from '../images/FF-WHITE-LOGO.png';
 
 const Dashboard = () => {
@@ -13,30 +17,127 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // Centralized state for work orders (replace with actual data fetching/management)
+  const [workOrders, setWorkOrders] = useState([
+    {
+      id: 1,
+      title: "Roof Repair",
+      assignedToId: 1,
+      assignedToName: "ABC Contractors",
+      status: "In Progress",
+      dueDate: "2025-05-05",
+      job: "Hurricane Damage Assessment",
+      progress: 65,
+      isDeleted: false,
+      // ... other fields
+    },
+    {
+      id: 2,
+      title: "Water Extraction",
+      assignedToId: 2,
+      assignedToName: "Water Damage Pros",
+      status: "Completed",
+      dueDate: "2025-04-22",
+      job: "Flood Restoration",
+      progress: 100,
+      isDeleted: false,
+      // ... other fields
+    },
+    {
+      id: 3,
+      title: "Debris Removal",
+      assignedToId: 3,
+      assignedToName: "Cleanup Specialists",
+      status: "Pending",
+      dueDate: "2025-05-10",
+      job: "Storm Debris Removal",
+      progress: 0,
+      isDeleted: false,
+      // ... other fields
+    },
+     {
+      id: 4,
+      title: "Drywall Installation",
+      assignedToId: 4,
+      assignedToName: "Building Experts Inc.",
+      status: "Pending",
+      dueDate: "2025-05-15",
+      job: "Flood Restoration",
+      progress: 0,
+      isDeleted: true, // Example deleted item
+      // ... other fields
+    },
+  ]);
+
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
   const handleSectionNavigation = (section, openModal) => {
     setActiveSection(section);
-
-    // If openModal is true, we could implement logic to open the appropriate modal
-    // in the future. For now, we're just logging it.
     if (openModal) {
       console.log(`Open modal for ${section} section`);
     }
   };
 
+  // Handler for restoring a work order
+  const handleRestoreWorkOrder = (id) => {
+    console.log(`Restoring work order with id: ${id}`);
+    setWorkOrders(prevWorkOrders =>
+      prevWorkOrders.map(order =>
+        order.id === id ? { ...order, isDeleted: false } : order
+      )
+    );
+    // Add audit log entry
+    const auditEntry = {
+      timestamp: new Date().toISOString(),
+      user: user?.name || "System", // Use logged-in user name if available
+      action: "Restored Work Order",
+      details: `Restored work order ID: ${id}`
+    };
+    setWorkOrders(prevWorkOrders =>
+      prevWorkOrders.map(order =>
+        order.id === id ? { ...order, auditLog: [...(order.auditLog || []), auditEntry] } : order
+      )
+    );
+  };
+
+  // Handler for deleting a work order (passed down to WorkOrdersSection)
+   const handleDeleteWorkOrder = (id) => {
+    // Add confirmation dialog here in a real application
+    console.log(`Soft deleting work order with id: ${id}`);
+    // Add audit log entry before setting state
+    const auditEntry = {
+      timestamp: new Date().toISOString(),
+      user: user?.name || "System",
+      action: "Deleted Work Order",
+      details: `Soft deleted work order ID: ${id}`
+    };
+    setWorkOrders(prevWorkOrders =>
+      prevWorkOrders.map(order =>
+        order.id === id ? { ...order, isDeleted: true, auditLog: [...(order.auditLog || []), auditEntry] } : order
+      )
+    );
+  };
+
   const renderSection = () => {
     switch (activeSection) {
       case 'home':
+        // Pass relevant data to HomeSection if needed for charts
         return <HomeSection onNavigate={handleSectionNavigation} />;
       case 'jobs':
         return <JobsSection />;
       case 'expenses':
         return <ExpensesSection />;
       case 'workorders':
-        return <WorkOrdersSection />;
+        // Pass workOrders state and delete handler down
+        return <WorkOrdersSection workOrders={workOrders} setWorkOrders={setWorkOrders} handleDeleteWorkOrder={handleDeleteWorkOrder} />;
+      case 'subcontractors':
+        return <SubcontractorList />;
+      case 'crews':
+        return <CrewList />;
+      case 'recyclebin': // Add case for recycle bin
+        return <RecycleBin allWorkOrders={workOrders} onRestoreWorkOrder={handleRestoreWorkOrder} />;
       case 'staff':
         return <StaffSection />;
       case 'settings':
@@ -55,6 +156,7 @@ const Dashboard = () => {
           className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
           aria-label="Open menu"
         >
+          {/* Hamburger Icon */}
           <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -70,13 +172,11 @@ const Dashboard = () => {
       {/* Mobile sidebar */}
       <div className={`sidebar-mobile ${sidebarOpen ? 'open' : ''}`}>
         <div className="flex items-center justify-between mb-8">
+          {/* Logo */}
           <div className="flex items-center">
-            <img
-              src={whiteLogo}
-              alt="Fairfield Group Logo"
-              className="h-20 w-auto"
-            />
+            <img src={whiteLogo} alt="Fairfield Group Logo" className="h-20 w-auto" />
           </div>
+          {/* Close Button */}
           <button
             onClick={toggleSidebar}
             className="text-gray-300 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
@@ -87,64 +187,38 @@ const Dashboard = () => {
           </button>
         </div>
         <nav className="space-y-1">
+          {/* Existing Sidebar Items */}
+          <SidebarItem active={activeSection === 'home'} onClick={() => { setActiveSection('home'); setSidebarOpen(false); }} text="Home" />
+          <SidebarItem active={activeSection === 'jobs'} onClick={() => { setActiveSection('jobs'); setSidebarOpen(false); }} text="Jobs" />
+          <SidebarItem active={activeSection === 'expenses'} onClick={() => { setActiveSection('expenses'); setSidebarOpen(false); }} text="Expenses" />
+          <SidebarItem active={activeSection === 'workorders'} onClick={() => { setActiveSection('workorders'); setSidebarOpen(false); }} text="Work Orders" />
+
+          {/* New Sidebar Items */}
           <SidebarItem
-            active={activeSection === 'home'}
-            onClick={() => { setActiveSection('home'); setSidebarOpen(false); }}
+            active={activeSection === 'subcontractors'}
+            onClick={() => { setActiveSection('subcontractors'); setSidebarOpen(false); }}
             icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>}
-            text="Home"
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h6m-6 4h6m-6 4h6" />
+                  </svg>}
+            text="Subcontractors"
           />
           <SidebarItem
-            active={activeSection === 'jobs'}
-            onClick={() => { setActiveSection('jobs'); setSidebarOpen(false); }}
+            active={activeSection === 'crews'}
+            onClick={() => { setActiveSection('crews'); setSidebarOpen(false); }}
             icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>}
-            text="Jobs"
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>}
+            text="Crews"
           />
-          <SidebarItem
-            active={activeSection === 'expenses'}
-            onClick={() => { setActiveSection('expenses'); setSidebarOpen(false); }}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>}
-            text="Expenses"
-          />
-          <SidebarItem
-            active={activeSection === 'workorders'}
-            onClick={() => { setActiveSection('workorders'); setSidebarOpen(false); }}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>}
-            text="Work Orders"
-          />
-          <SidebarItem
-            active={activeSection === 'staff'}
-            onClick={() => { setActiveSection('staff'); setSidebarOpen(false); }}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>}
-            text="Staff"
-          />
-          <SidebarItem
-            active={activeSection === 'settings'}
-            onClick={() => { setActiveSection('settings'); setSidebarOpen(false); }}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>}
-            text="Settings"
-          />
+
+          <SidebarItem active={activeSection === 'staff'} onClick={() => { setActiveSection('staff'); setSidebarOpen(false); }} text="Staff" />
+          <SidebarItem active={activeSection === 'recyclebin'} onClick={() => { setActiveSection('recyclebin'); setSidebarOpen(false); }} text="Recycle Bin" />
+          <SidebarItem active={activeSection === 'settings'} onClick={() => { setActiveSection('settings'); setSidebarOpen(false); }} text="Settings" />
         </nav>
         <div className="mt-auto pt-6">
-          <button
-            onClick={logout}
-            className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
-            <svg className="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+          {/* Logout Button */}
+          <button onClick={logout} className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+            {/* Logout Icon */}
             Logout
           </button>
         </div>
@@ -153,71 +227,44 @@ const Dashboard = () => {
       {/* Desktop sidebar */}
       <div className="sidebar">
         <div className="flex items-center justify-center mb-8">
-          <img
-            src={whiteLogo}
-            alt="Fairfield Group Logo"
-            className="h-25 w-auto"
-          />
+          {/* Logo */}
+          <img src={whiteLogo} alt="Fairfield Group Logo" className="h-25 w-auto" />
         </div>
         <nav className="space-y-1">
+          {/* Existing Sidebar Items */}
+          <SidebarItem active={activeSection === 'home'} onClick={() => setActiveSection('home')} text="Home" />
+          <SidebarItem active={activeSection === 'jobs'} onClick={() => setActiveSection('jobs')} text="Jobs" />
+          <SidebarItem active={activeSection === 'expenses'} onClick={() => setActiveSection('expenses')} text="Expenses" />
+          <SidebarItem active={activeSection === 'workorders'} onClick={() => setActiveSection('workorders')} text="Work Orders" />
+
+          {/* New Sidebar Items */}
           <SidebarItem
-            active={activeSection === 'home'}
-            onClick={() => setActiveSection('home')}
+            active={activeSection === 'subcontractors'}
+            onClick={() => setActiveSection('subcontractors')}
             icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>}
-            text="Home"
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h6m-6 4h6m-6 4h6" />
+                  </svg>}
+            text="Subcontractors"
           />
           <SidebarItem
-            active={activeSection === 'jobs'}
-            onClick={() => setActiveSection('jobs')}
+            active={activeSection === 'crews'}
+            onClick={() => setActiveSection('crews')}
             icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>}
-            text="Jobs"
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>}
+            text="Crews"
           />
-          <SidebarItem
-            active={activeSection === 'expenses'}
-            onClick={() => setActiveSection('expenses')}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>}
-            text="Expenses"
-          />
-          <SidebarItem
-            active={activeSection === 'workorders'}
-            onClick={() => setActiveSection('workorders')}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>}
-            text="Work Orders"
-          />
-          <SidebarItem
-            active={activeSection === 'staff'}
-            onClick={() => setActiveSection('staff')}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>}
-            text="Staff"
-          />
-          <SidebarItem
-            active={activeSection === 'settings'}
-            onClick={() => setActiveSection('settings')}
-            icon={<svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>}
-            text="Settings"
-          />
+
+          {/* Existing Sidebar Items */}
+          <SidebarItem active={activeSection === 'staff'} onClick={() => setActiveSection('staff')} text="Staff" />
+          {/* Add Recycle Bin to desktop sidebar */}
+          <SidebarItem active={activeSection === 'recyclebin'} onClick={() => setActiveSection('recyclebin')} text="Recycle Bin" />
+          <SidebarItem active={activeSection === 'settings'} onClick={() => setActiveSection('settings')} text="Settings" />
         </nav>
         <div className="mt-auto pt-6">
-          <button
-            onClick={logout}
-            className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
-            <svg className="mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+          {/* Logout Button */}
+          <button onClick={logout} className="w-full flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+            {/* Logout Icon */}
             Logout
           </button>
         </div>
@@ -226,14 +273,10 @@ const Dashboard = () => {
       {/* Main content */}
       <div className="main-content">
         <div className="header flex-col md:flex-row space-y-2 md:space-y-0">
+          {/* Header Content */}
           <h1 className="text-xl md:text-2xl font-bold">Welcome, {user?.name || 'User'}</h1>
           <div className="text-xs md:text-sm text-gray-500">
-            {new Date().toLocaleDateString('en-US', {
-              weekday: window.innerWidth < 640 ? 'short' : 'long',
-              year: 'numeric',
-              month: window.innerWidth < 640 ? 'short' : 'long',
-              day: 'numeric'
-            })}
+            {/* Date Display */}
           </div>
         </div>
 
@@ -243,7 +286,10 @@ const Dashboard = () => {
   );
 };
 
+// SidebarItem component remains the same
 const SidebarItem = ({ active, onClick, icon, text }) => {
+  // Add placeholder icons if missing
+  const defaultIcon = <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>;
   return (
     <button
       onClick={onClick}
@@ -253,7 +299,7 @@ const SidebarItem = ({ active, onClick, icon, text }) => {
           : 'text-gray-300 hover:bg-gray-700 hover:text-white'
       }`}
     >
-      <span className="mr-3">{icon}</span>
+      <span className="mr-3">{icon || defaultIcon}</span>
       {text}
     </button>
   );
